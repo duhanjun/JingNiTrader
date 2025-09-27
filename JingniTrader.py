@@ -1,51 +1,15 @@
 # -*- coding: utf-8 -*- 
  
 """
-项目名称：JingniTrader
-
+项目名称：JingNiTrader
 项目版本：v1.0.0
-
-项目描述：JingniTrader是一个基于Python的量化交易开发框架，致力于提供兼容中国券商交易软件的量化解决方案
-
-项目版权：Copyright © 2024 Du Hanjun. All rights reserved.
-
-项目许可：项目采用MIT许可证
-
-项目作者：二哥聊指数 (hanjun.du@outlook.com)
-
-项目贡献：
-
-    项目长期招募贡献者，有意向请邮件联系项目作者。
-
-使用方法： 
-
-    ①Python下载安装参考：https://www.python.org/downloads/
-    ②Python环境变量配置：
-        Windows 7 可参考：https://jingyan.baidu.com/article/48206aeafdcf2a216ad6b316.html
-        Windows 10可参考：https://jingyan.baidu.com/article/60ccbcebb2b81264cab197b4.html
-        Linux发行版可参考：https://jingyan.baidu.com/article/4f34706e3de476e387b56dd6.html
-    ③在命令行（windows可使用win+r输入cmd）中输入python，出现类似“Python 3.10.11”提示信息，说明python环境安装成功
-    ④在命令行（windows可使用win+r输入cmd）中输入pip XXXX（XXXX为本项目程序开头import代码后面的工具包）安装本项目程序运行所需的依赖项
-
-代码结构：
-
-    def main() 该函数作为运行本项目程序的入口
-    def jingni_before_trading_start() 该函数在每天9:30开始交易前被调用一次，用于处理每天开盘前的信息，如无盘前处理需求，该函数可不调用
-    def jingni_handle_data(trade_start_time, trade_end_time, trade_seconds) 该函数在交易时间内（9:30-15:00）按指定的周期频率（秒）运行，是主要的交易模块。
-    def jingni_after_trading_end()    该函数会在每天15:00结束交易后被调用一次，用于处理每天收盘后的信息，如无盘后处理需求，该函数可不调用
-
-    def jingni_select_security() 该函数用于筛选所需交易的证券品种（股票、债券、基金）
-    def jingni_trade_signal()    该函数用于判断适合市场的交易信号（BUY买入、SELL卖出）
-    def jingni_trade_strategy()  该函数用于构建基于模型和算法的交易决策方法（交易策略）
-
-    def XXXX() 更多自定义函数由交易者根据实际需要自行添加
-
-免责声明：本项目仅用于教育目的，不保证任何交易的成功。请自行承担风险！！！
-
-关于本项目的信息和反馈，请访问项目GitHub存储库：https://github.com/duhanjun/JingniTrader
-
-关于本项目的教程和案例，请访问项目社区[刺桐说]：https://wx.zsxq.com/dweb2/index/group/28855458552411
-
+项目描述：JingNiTrader是一个基于Python的量化交易开发框架，致力于提供兼容中国券商交易软件的量化解决方案。
+项目版权：Copyright (c) 2024-present, Hanjun Du
+项目作者：Hnjun Du (hanjun.du@outlook.com)
+项目贡献：项目长期招募贡献者，有意向请邮件联系项目作者。
+免责声明：本项目仅用于教育目的，不保证任何交易的成功。请自行承担风险。
+关于本项目的信息和反馈，请访问GitHub存储库：https://github.com/duhanjun/JingNiTrader
+关于本项目的学习和实践，请访问在线课程目录：https://mp.weixin.qq.com/mp/appmsgalbum?__biz=MjM5MTU2NDA3OQ==&action=getalbum&album_id=4151851070626693141#wechat_redirect
 """
 
 import sys
