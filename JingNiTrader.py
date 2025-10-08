@@ -552,9 +552,54 @@ def jingni_order_value(trade_mode, context_data, security_code, security_value, 
     except Exception as e:
         print('证券价值交易未知异常：', e)
 
+# 新股申购函数
+def jingni_subscribe_new_stock(trade_mode):
+
+    print(datetime.datetime.now(), '开始新股申购')
+
+    if trade_mode == 'goldminer':
+        # 获取当天新股信息
+        ipo_stock = ipo_get_instruments(1010, account_id='', df=True)
+        print('今日新股信息：%s' % ipo_stock)
+        if ipo_stock:
+            for security in ipo_stock:
+                # 提交新股申购订单
+                ipo_stock_order = ipo_buy(security['symbol'], security['max_vol'], security['price'], account_id='')
+                print('完成新股申购：%s' % ipo_stock_order)
+        else:
+            print('今日没有新股')
+
+    elif trade_mode == 'ptrade':
+        # 提交新股申购订单
+        ipo_stock_order_SH = ipo_stocks_order(market_type=0)
+        ipo_stock_order_KC = ipo_stocks_order(market_type=1)
+        ipo_stock_order_SZ = ipo_stocks_order(market_type=2)
+        ipo_stock_order_CY = ipo_stocks_order(market_type=3)
+        if ipo_stock_order_SH or ipo_stock_order_KC or ipo_stock_order_SZ or ipo_stock_order_CY:
+            print('完成新股申购：%s %s %s %s' % (ipo_stock_order_SH,ipo_stock_order_KC, ipo_stock_order_SZ, ipo_stock_order_CY))
+        else:
+            print('今日没有新股')
+
+    elif trade_mode == 'qmt':
+        # 获取当天新股信息
+        ipo_stock = get_ipo_data("STOCK")
+        print('今日新股信息：%s' % ipo_stock)
+        if ipo_stock:
+            for security_code in ipo_stock:
+                # 获取新股发行价格
+                ipo_stock_issuePrice = ipo_stock[security_code]['issuePrice']
+                # 获取新股申购数量
+                ipo_stock_maxPurchaseNum = ipo_stock[security_code]['maxPurchaseNum']
+                # 提交新股申购订单
+                ipo_stock_order = passorder(23, 1101, account, security_code, 11, ipo_stock_issuePrice, ipo_stock_maxPurchaseNum, '', 1, '', ContextInfo)
+                print('完成新股申购：%s' % ipo_stock_order)
+        else:
+            print('今日没有新股')
+    print(datetime.datetime.now(), '结束新股申购')
+
 # 交易策略函数
 def jingni_trade_strategy(trade_mode, context_data):
-    print(jingni_order_value(trade_mode, context_data, jingni_map_security_code('510300.SH'), 10000, 4.741))
+    print('交易策略正在运行中，请写入你的策略逻辑')
 
 # 盘前事件函数
 def jingni_before_trading_start(trade_mode, context_data):
