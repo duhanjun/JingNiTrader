@@ -2,7 +2,7 @@
 
 """
 项目名称：JingNiTrader
-项目版本：v0.1.10
+项目版本：v0.1.11
 项目描述：JingNiTrader是一个基于Python的量化交易开发框架，致力于提供兼容中国券商交易软件的量化解决方案。
 项目版权：Copyright (c) 2024-present, Hanjun Du
 项目作者：Hnjun Du (hanjun.du@outlook.com)
@@ -506,9 +506,55 @@ def jingni_order_amount(trade_mode, context_data, security_code, security_amount
     except Exception as e:
         print('证券数量交易未知异常：', e)
 
+# 证券价值交易函数
+def jingni_order_value(trade_mode, context_data, security_code, security_value, security_price):
+
+    try:
+        if security_value is not None and security_value >= 0:
+            # 获取账户可用资金
+            cash = jingni_portfolio(trade_mode, context_data, 'cash')
+            if security_value <= cash:
+                security_buy_amount = int((security_value//(security_price*100))*100)
+            elif security_value > cash:
+                security_buy_amount = int((cash//(security_price*100))*100)
+            if security_buy_amount > 0:
+                print("证券可买数量：", security_buy_amount)
+                jingni_order_amount(trade_mode, context_data, security_code, security_buy_amount, security_price)
+            else:
+                print("证券可买数量：", security_buy_amount)
+        elif security_value is not None and security_value < 0:
+            # 获取证券可卖数量
+            security_enable_amount = 0
+            positions = jingni_portfolio(trade_mode, context_data, 'positions')
+            if trade_mode == 'goldminer':
+                for data in positions:
+                    if data.symbol == security_code:
+                        security_enable_amount = data.volume
+            elif trade_mode == 'ptrade':
+                if security_code in positions:
+                    security_enable_amount = positions[security_code].enable_amount
+            elif trade_mode == 'qmt':
+                for dt in positions:
+                    if dt.m_strInstrumentID + '.' + dt.m_strExchangeID == security_code:
+                        security_enable_amount = dt.m_nCanUseVolume
+            if security_enable_amount > 0:
+                print("证券可卖数量：", security_enable_amount)
+                # 计算证券卖出数量
+                security_sell_amount = int(((-security_value)//(security_price*100))*100)
+                if security_sell_amount >= security_enable_amount and security_enable_amount > 0:
+                    security_sell_amount = security_enable_amount
+                elif security_sell_amount < security_enable_amount and security_enable_amount > 0:
+                    security_sell_amount = security_sell_amount
+                jingni_order_amount(trade_mode, context_data, security_code, -security_sell_amount, security_price)
+            else:
+                print("证券可卖数量：", security_enable_amount)
+
+    except Exception as e:
+        print('证券价值交易未知异常：', e)
+
 # 交易策略函数
 def jingni_trade_strategy(trade_mode, context_data):
-    print(jingni_order_amount(trade_mode, context_data, jingni_map_security_code('510300.SH'), 100, 4.741))
+    print(jingni_order_value(trade_mode, context_data, jingni_map_security_code('510300.SH'), 10000, 4.741))
 
 # 盘前事件函数
 def jingni_before_trading_start(trade_mode, context_data):
