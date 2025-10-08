@@ -83,8 +83,16 @@ PTrade是一款面向高净值个人客户及专业机构的一体化智能投�
 
 **3.事件驱动框架**
 
-**函数名称**：before_trading_start/handle_data/after_trading_end
+**函数名称**：jingni_before_trading_start(trade_mode, context_data)/jingni_handle_data(trade_mode, context_data)/jingni_after_trading_end(trade_mode, context_data)
 
 **学习目标**：理解量化交易系统的事件驱动运行框架，理解不同事件功能模块的执行时机和职责。
 
 **核心内容**：详解如何在每日盘前执行数据预加载、参数初始化等一次性任务。详解如何在交易日内以指定频率（如每3秒）循环执行核心策略逻辑，包括交易信号、风险检查和订单提交。详解如何在每日盘后执行数据持久化、绩效分析、日志清理等收尾工作。
+
+**4.查询交易日历**
+
+**函数名称**：jingni_trading_dates(trade_mode, context_data, trading_dates_count)
+
+**学习目标**：掌握获取交易日历的方法，为所有时间序列运算提供基准。
+
+**核心内容**：详解如何根据偏移量查询过去、当前或未来的交易日，并处理不同券商量化交易软件的日期差异，返回统一格式的日期，确保策略逻辑基于交易日而非自然日。

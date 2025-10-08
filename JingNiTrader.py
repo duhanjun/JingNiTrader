@@ -20,9 +20,49 @@ import datetime
 global trade_mode
 trade_mode = '软件名称'
 
+# 查询交易日历函数
+def jingni_trading_dates(trade_mode, context_data, trading_dates_count):
+    try:
+        if trade_mode == 'goldminer':
+            if trading_dates_count == 0:
+                # 获取交易日历，0代表今天
+                trading_dates_data = context_data.now.strftime('%Y%m%d')
+            elif trading_dates_count > 0:
+                # 获取交易日历，大于0代表今天的后n个交易日
+                trading_dates_data = get_next_n_trading_dates(exchange='SHSE', date=context_data.now.strftime('%Y-%m-%d'), n=trading_dates_count)[0]
+            elif trading_dates_count < 0:
+                # 获取交易日历，小于0代表今天的前n个交易日
+                trading_dates_data = get_previous_n_trading_dates(exchange='SHSE', date=context_data.now.strftime('%Y-%m-%d'), n=-trading_dates_count)[0]
+        elif trade_mode == 'ptrade':
+            if trading_dates_count == 0:
+                # 获取交易日历，0代表今天
+                trading_dates_data = get_trading_day(trading_dates_count).strftime('%Y%m%d')
+            elif trading_dates_count > 0:
+                # 获取交易日历，大于0代表今天的后n个交易日
+                trading_dates_data = get_trading_day(trading_dates_count).strftime('%Y%m%d')
+            elif trading_dates_count < 0:
+                # 获取交易日历，小于0代表今天的前n个交易日
+                trading_dates_data = get_trading_day(trading_dates_count).strftime('%Y%m%d')
+        elif trade_mode == 'qmt':
+            if trading_dates_count == 0:
+                # 获取交易日历，0代表今天
+                trading_dates_data = timetag_to_datetime(context_data.get_bar_timetag(context_data.barpos), '%Y%m%d')
+            elif trading_dates_count > 0:
+                # 获取交易日历，大于0代表今天的后n个交易日
+                trading_dates_data = None
+            elif trading_dates_count < 0:
+                # 获取交易日历，小于0代表今天的前n个交易日
+                trading_dates_data = None
+    except Exception as e:
+        print('查询交易日历未知异常：', e)
+        trading_dates_data = None
+    return trading_dates_data
+
 # 交易策略函数
 def jingni_trade_strategy(trade_mode, context_data):
-    print('成功运行JingniTrader量化交易系统，当前使用的券商交易软件为：', trade_mode)
+    print('今天当前的交易日日期是：', jingni_trading_dates(trade_mode, context_data, 0))
+    print('今天前面的交易日日期是：', jingni_trading_dates(trade_mode, context_data, -1))
+    print('今天后面的交易日日期是：', jingni_trading_dates(trade_mode, context_data, 1))
 
 # 盘前事件函数
 def jingni_before_trading_start(trade_mode, context_data):
