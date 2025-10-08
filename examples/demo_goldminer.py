@@ -13,6 +13,8 @@ def init(context):
     subscribe(symbols='SHSE.600000', frequency='1d')
     # 设定每天10:00执行新股申购函数(关闭该功能请在下一行代码schedule前加#)
     schedule(schedule_func=jingni_subscribe_new_stock, date_rule='1d', time_rule='10:00:00')
+    # 设定每天10:10执行新债申购函数(关闭该功能请在下一行代码schedule前加#)
+    schedule(schedule_func=jingni_subscribe_new_bond, date_rule='1d', time_rule='10:10:00')
     pass
 
 # 新建空策略后复制这两行示例代码到空策略里

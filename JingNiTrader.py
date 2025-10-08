@@ -2,7 +2,7 @@
 
 """
 项目名称：JingNiTrader
-项目版本：v0.1.12
+项目版本：v0.1.13
 项目描述：JingNiTrader是一个基于Python的量化交易开发框架，致力于提供兼容中国券商交易软件的量化解决方案。
 项目版权：Copyright (c) 2024-present, Hanjun Du
 项目作者：Hnjun Du (hanjun.du@outlook.com)
@@ -596,6 +596,49 @@ def jingni_subscribe_new_stock(trade_mode):
         else:
             print('今日没有新股')
     print(datetime.datetime.now(), '结束新股申购')
+
+# 新债申购函数
+def jingni_subscribe_new_bond(trade_mode):
+
+    print(datetime.datetime.now(), '开始新债申购')
+
+    if trade_mode == 'goldminer':
+        # 获取当天新债信息
+        ipo_bond = ipo_get_instruments(1030, account_id='', df=True)
+        print('今日新债信息：%s' % ipo_bond)
+        if ipo_bond:
+            for security in ipo_bond:
+                # 提交新债申购订单
+                ipo_bond_order = ipo_buy(security['symbol'], security['max_vol'], security['price'], account_id='')
+                print('完成新债申购：%s' % ipo_bond_order)
+        else:
+            print('今日没有新债')
+
+    elif trade_mode == 'ptrade':
+        # 提交新债申购订单
+        ipo_bond_order = ipo_stocks_order(market_type=4)
+        if ipo_bond_order:
+            print('完成新债申购：%s' % ipo_bond_order)
+        else:
+            print('今日没有新债')
+
+    elif trade_mode == 'qmt':
+        # 获取当天新债信息
+        ipo_bond = get_ipo_data("BOND")
+        print('今日新债信息：%s' % ipo_bond)
+        if ipo_bond:
+            for security_code in ipo_bond:
+                # 获取新股发行价格
+                ipo_bond_issuePrice = ipo_bond[security_code]['issuePrice']
+                # 获取新股申购数量
+                ipo_bond_maxPurchaseNum = ipo_bond[security_code]['maxPurchaseNum']
+                # 提交新股申购订单
+                ipo_bond_order = passorder(23, 1101, account, security_code, 11, ipo_bond_issuePrice, ipo_bond_maxPurchaseNum, '', 1, '', ContextInfo)
+                print('完成新债申购：%s' % ipo_bond_order)
+        else:
+            print('今日没有新债')
+
+    print(datetime.datetime.now(), '结束新债申购')
 
 # 交易策略函数
 def jingni_trade_strategy(trade_mode, context_data):
