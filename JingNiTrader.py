@@ -58,11 +58,61 @@ def jingni_trading_dates(trade_mode, context_data, trading_dates_count):
         trading_dates_data = None
     return trading_dates_data
 
+# 查询账户信息函数
+def jingni_portfolio(trade_mode, context_data, security_field):
+
+    try:
+        if trade_mode == 'goldminer':
+            if security_field == 'assets_value':
+                # 获取账户资产
+                portfolio_data = context_data.account().cash['nav']
+            elif security_field == 'market_value':
+                # 获取账户市值
+                portfolio_data = context_data.account().cash['market_value']
+            elif security_field == 'cash':
+                # 获取可用资金
+                portfolio_data = context_data.account().cash['balance']
+            elif security_field == 'positions':
+                # 获取账户持仓
+                portfolio_data = context_data.account().positions()
+        elif trade_mode == 'ptrade':
+            if security_field == 'assets_value':
+                # 获取账户资产
+                portfolio_data = context_data.portfolio.portfolio_value
+            elif security_field == 'market_value':
+                # 获取账户市值
+                portfolio_data = context_data.portfolio.positions_value
+            elif security_field == 'cash':
+                # 获取可用资金
+                portfolio_data = context_data.portfolio.cash
+            elif security_field == 'positions':
+                # 获取账户持仓
+                portfolio_data = context_data.portfolio.positions
+        elif trade_mode == 'qmt':
+            if security_field == 'assets_value':
+                # 获取账户资产
+                portfolio_data = get_trade_detail_data(account, 'stock', 'account')[0].m_dBalance
+            elif security_field == 'market_value':
+                # 获取账户市值
+                portfolio_data = get_trade_detail_data(account, 'stock', 'account')[0].m_dInstrumentValue
+            elif security_field == 'cash':
+                # 获取可用资金
+                portfolio_data = get_trade_detail_data(account, 'stock', 'account')[0].m_dAvailable
+            elif security_field == 'positions':
+                # 获取账户持仓
+                portfolio_data = get_trade_detail_data(account, 'stock', 'position')
+    except Exception as e:
+        print('查询账户信息未知异常：', e)
+        portfolio_data = None
+
+    return portfolio_data
+
 # 交易策略函数
 def jingni_trade_strategy(trade_mode, context_data):
-    print('今天当前的交易日日期是：', jingni_trading_dates(trade_mode, context_data, 0))
-    print('今天前面的交易日日期是：', jingni_trading_dates(trade_mode, context_data, -1))
-    print('今天后面的交易日日期是：', jingni_trading_dates(trade_mode, context_data, 1))
+    print('当前的账户资产：', jingni_portfolio(trade_mode, context_data, 'assets_value'), '元')
+    print('当前的账户市值：', jingni_portfolio(trade_mode, context_data, 'market_value'), '元')
+    print('当前的可用资金：', jingni_portfolio(trade_mode, context_data, 'cash'), '元')
+    print('当前的持仓信息：', jingni_portfolio(trade_mode, context_data, 'positions'))
 
 # 盘前事件函数
 def jingni_before_trading_start(trade_mode, context_data):
