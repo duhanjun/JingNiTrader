@@ -2,7 +2,7 @@
 
 """
 项目名称：JingNiTrader
-项目版本：v0.1.6
+项目版本：v0.1.7
 项目描述：JingNiTrader是一个基于Python的量化交易开发框架，致力于提供兼容中国券商交易软件的量化解决方案。
 项目版权：Copyright (c) 2024-present, Hanjun Du
 项目作者：Hnjun Du (hanjun.du@outlook.com)
@@ -211,12 +211,38 @@ def jingni_get_current(trade_mode, context_data, security_code, security_field):
 
     return current_data
 
+# 查询历史行情函数
+def jingni_get_history(trade_mode, context_data, security_code, security_frequency, security_field, security_count):
+
+    try:
+        if trade_mode == 'goldminer':
+            # 获取历史行情数据
+            history_data = history_n(symbol=str(security_code), frequency=str(security_frequency), count=int(-security_count), end_time=datetime.datetime.strptime(jingni_trading_dates(trade_mode, context_data, 0), "%Y%m%d").strftime("%Y-%m-%d"), fields=str(security_field), adjust=ADJUST_PREV, df=True)
+        elif trade_mode == 'ptrade':
+            # 获取历史行情数据
+            if security_field == '':
+                security_field = None
+            history_data = get_history(int(-security_count), str(security_frequency), security_field, security_code, fq='pre', include=True)
+        elif trade_mode == 'qmt':
+            # 将字符串参数转换成列表参数
+            if isinstance(security_code, str):
+                security_code = [security_code]
+            if security_field == '':
+                security_field = []
+            else:
+                if isinstance(security_field, str):
+                    security_field = [security_field]
+            # 获取历史行情数据
+            history_data = context_data.get_market_data_ex(fields=security_field, stock_code=security_code, period=str(security_frequency), end_time=str(jingni_trading_dates(trade_mode, context_data, 0)), count=int(-security_count), dividend_type='front')
+    except Exception as e:
+        print('查询历史行情未知异常：', e)
+        history_data = None
+
+    return history_data
+
 # 交易策略函数
 def jingni_trade_strategy(trade_mode, context_data):
-    print('000300.SH实时行情：', jingni_get_current(trade_mode, context_data, jingni_map_security_code('000300.SH'), ''))
-    print('399001.SZ实时行情：', jingni_get_current(trade_mode, context_data, jingni_map_security_code('399001.SZ'), ''))
-    print('600519.SH实时行情：', jingni_get_current(trade_mode, context_data, jingni_map_security_code('600519.SH'), ''))
-    print('300750.SZ实时行情：', jingni_get_current(trade_mode, context_data, jingni_map_security_code('300750.SZ'), ''))
+    print('000300.SH历史行情：', jingni_get_history(trade_mode, context_data, jingni_map_security_code('000300.SH'), '1d', '', -10))
 
 # 盘前事件函数
 def jingni_before_trading_start(trade_mode, context_data):
