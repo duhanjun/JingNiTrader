@@ -2,7 +2,7 @@
 
 """
 项目名称：JingNiTrader
-项目版本：v0.1.13
+项目版本：v0.1.14
 项目描述：JingNiTrader是一个基于Python的量化交易开发框架，致力于提供兼容中国券商交易软件的量化解决方案。
 项目版权：Copyright (c) 2024-present, Hanjun Du
 项目作者：Hnjun Du (hanjun.du@outlook.com)
@@ -639,6 +639,25 @@ def jingni_subscribe_new_bond(trade_mode):
             print('今日没有新债')
 
     print(datetime.datetime.now(), '结束新债申购')
+
+# 国债逆回购函数
+def jingni_participate_reverse_repo(trade_mode, context_data, security_code, cash_ratio):
+
+    print(datetime.datetime.now(), '开始国债逆回购')
+
+    # 获取账户可用资金
+    cash = jingni_portfolio(trade_mode, context_data, 'cash')
+    # 计算证券可卖数量
+    security_amount = -(int(cash*cash_ratio/1000))*10
+    # 如果证券可卖数量小于0，则卖出证券完成国债逆回购
+    if security_amount < 0:
+        security_price = jingni_get_current(trade_mode, context_data, security_code, 'price')
+        jingni_order_amount(trade_mode, context_data,security_code, security_amount, security_price)
+    # 如果证券可卖数量等于0，则自动跳过结束国债逆回购
+    else:
+        pass
+
+    print(datetime.datetime.now(), '完成国债逆回购')
 
 # 交易策略函数
 def jingni_trade_strategy(trade_mode, context_data):

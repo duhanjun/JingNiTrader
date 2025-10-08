@@ -15,6 +15,8 @@ def init(context):
     schedule(schedule_func=jingni_subscribe_new_stock, date_rule='1d', time_rule='10:00:00')
     # 设定每天10:10执行新债申购函数(关闭该功能请在下一行代码schedule前加#)
     schedule(schedule_func=jingni_subscribe_new_bond, date_rule='1d', time_rule='10:10:00')
+    # 设定每天14:50执行国债逆回购函数(关闭该功能请在下一行代码schedule前加#)
+    schedule(schedule_func=jingni_participate_reverse_repo, date_rule='1d', time_rule='14:50:00')
     pass
 
 # 新建空策略后复制这两行示例代码到空策略里

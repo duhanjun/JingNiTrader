@@ -9,6 +9,8 @@ def init(ContextInfo):
     ContextInfo.schedule_run(jingni_subscribe_new_stock, datetime.datetime.now().strftime('%Y%m%d') + '100000', 1, datetime.timedelta(days=1), 'jingni_subscribe_new_stock')
     # 设定每天10:10执行新债申购函数(关闭该功能请在下一行代码ContextInfo.schedule_run前加#)
     ContextInfo.schedule_run(jingni_subscribe_new_bond, datetime.datetime.now().strftime('%Y%m%d') + '101000', 1, datetime.timedelta(days=1), 'jingni_subscribe_new_bond')
+    # 设定每天14:50执行国债逆回购函数(关闭该功能请在下一行代码ContextInfo.schedule_run前加#)
+    ContextInfo.schedule_run(jingni_participate_reverse_repo, datetime.datetime.now().strftime('%Y%m%d') + '145000', 1, datetime.timedelta(days=1), 'jingni_participate_reverse_repo')
     pass
 
 def handlebar(ContextInfo):
