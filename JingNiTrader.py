@@ -2,7 +2,7 @@
 
 """
 项目名称：JingNiTrader
-项目版本：v0.1.9
+项目版本：v0.1.10
 项目描述：JingNiTrader是一个基于Python的量化交易开发框架，致力于提供兼容中国券商交易软件的量化解决方案。
 项目版权：Copyright (c) 2024-present, Hanjun Du
 项目作者：Hnjun Du (hanjun.du@outlook.com)
@@ -478,11 +478,37 @@ def jingni_get_field_n(trade_mode, context_data, security_code, security_frequen
 
     return security_field_n
 
+# 证券数量交易函数
+def jingni_order_amount(trade_mode, context_data, security_code, security_amount, security_price):
+
+    try:
+        if trade_mode == 'goldminer':
+            if security_amount >= 0:
+                order_volume(symbol=str(security_code), volume=int(security_amount), price=float(security_price), side=OrderSide_Buy, order_type=OrderType_Limit, position_effect=PositionEffect_Open)
+                print('%s元 买入证券 %s %s股' % (security_price, security_code, security_amount))
+            elif security_amount < 0:
+                order_volume(symbol=str(security_code), volume=int(-security_amount), price=float(security_price), side=OrderSide_Sell, order_type=OrderType_Limit, position_effect=PositionEffect_Close)
+                print('%s元 卖出证券 %s %s股' % (security_price, security_code, -security_amount))
+        elif trade_mode == 'ptrade':
+            if security_amount >= 0:
+                order(str(security_code), int(security_amount), limit_price=float(security_price))
+                print('%s元 买入证券 %s %s股' % (security_price, security_code, security_amount))
+            elif security_amount < 0:
+                order(str(security_code), int(-security_amount), limit_price=float(security_price))
+                print('%s元 卖出证券 %s %s股' % (security_price, security_code, -security_amount))
+        elif trade_mode == 'qmt':
+            if security_amount >= 0:
+                passorder(23, 1101, str(account), str(security_code), 11, float(security_price), int(security_amount), '', 2, '', context_data)
+                print('%s元 买入证券 %s %s股' % (security_price, security_code, security_amount))
+            elif security_amount < 0:
+                passorder(24, 1101, str(account), str(security_code), 11, float(security_price), int(-security_amount), '', 2, '', context_data)
+                print('%s元 卖出证券 %s %s股' % (security_price, security_code, -security_amount))
+    except Exception as e:
+        print('证券数量交易未知异常：', e)
+
 # 交易策略函数
 def jingni_trade_strategy(trade_mode, context_data):
-    print('000300.SH今日收盘价：', jingni_get_field_n(trade_mode, context_data, jingni_map_security_code('000300.SH'), '1d', 'close', 0))
-    print('000300.SH最近3日（含今日）收盘价：', jingni_get_field_n(trade_mode, context_data, jingni_map_security_code('000300.SH'), '1d', 'close', -3))
-    print('000300.SH最近5日（含今日）收盘价：', jingni_get_field_n(trade_mode, context_data, jingni_map_security_code('000300.SH'), '1d', 'close', -5))
+    print(jingni_order_amount(trade_mode, context_data, jingni_map_security_code('510300.SH'), 100, 4.741))
 
 # 盘前事件函数
 def jingni_before_trading_start(trade_mode, context_data):
