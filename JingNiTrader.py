@@ -2,7 +2,7 @@
 
 """
 项目名称：JingNiTrader
-项目版本：v0.1.1
+项目版本：v0.1.5
 项目描述：JingNiTrader是一个基于Python的量化交易开发框架，致力于提供兼容中国券商交易软件的量化解决方案。
 项目版权：Copyright (c) 2024-present, Hanjun Du
 项目作者：Hnjun Du (hanjun.du@outlook.com)
@@ -107,12 +107,94 @@ def jingni_portfolio(trade_mode, context_data, security_field):
 
     return portfolio_data
 
+# 证券代码转换函数
+def jingni_map_security_code(security_code):
+
+    try:
+        if trade_mode == 'goldminer':
+            if security_code[security_code.find('.') - 1].isdigit():
+                # 获取证券代码.之前的字符串,即六位数字字符
+                security_code_char_number = security_code[0:security_code.rfind('.')]
+                # 获取证券代码.开始的字符串，即点和市场字符
+                security_code_char_market = security_code[security_code.rfind('.'):]
+                # 如果市场字符等于'.SH'则将市场字符替换成'SHSE.'
+                if security_code_char_market == '.SH':
+                    security_code_char_market = 'SHSE.'
+                # 如果市场字符等于'.SZ'则将市场字符替换成'SZSE.'
+                elif security_code_char_market == '.SZ':
+                    security_code_char_market = 'SZSE.'
+                # 将六位数字字符和点和市场字符重新拼接成新的证券代码
+                security_code = security_code_char_market + security_code_char_number
+            elif security_code[security_code.find('.') - 1].isalpha():
+                # 获取证券代码.之前的字符串,即市场字符
+                security_code_char_market = security_code[:security_code.rfind('.')+1]
+                # 获取证券代码.开始的字符串，即点和数字字符
+                security_code_char_number = security_code[security_code.rfind('.')+1:]
+                # 如果市场字符等于'SHSE.'则将市场字符替换成'.SH'
+                if security_code_char_market == 'SHSE.':
+                    security_code_char_market = '.SH'
+                # 如果市场字符等于'SZSE.'则将市场字符替换成'.SZ'
+                elif security_code_char_market == 'SZSE.':
+                    security_code_char_market = '.SZ'
+                # 将六位数字字符和点和市场字符重新拼接成新的证券代码
+                security_code = security_code_char_number + security_code_char_market
+
+        elif trade_mode == 'ptrade':
+            # 获取证券代码.之前的字符串,即六位数字字符
+            security_code_char_number = security_code[0:security_code.rfind('.')]
+            # 获取证券代码.开始的字符串，即点和市场字符
+            security_code_char_market = security_code[security_code.rfind('.'):]
+            # 如果市场字符等于'.SH'则将市场字符替换成'.SS'
+            if security_code_char_market == '.SH':
+                security_code_char_market = '.SS'
+            # 如果市场字符等于'.SZ'则将市场字符替换成'.SZ'
+            elif security_code_char_market == '.SZ':
+                security_code_char_market = '.SZ'
+            # 如果市场字符等于'.SS'则将市场字符替换成'.SH'
+            elif security_code_char_market == '.SS':
+                security_code_char_market = '.SH'
+            # 如果市场字符等于'.SZ'则将市场字符替换成'.SZ'
+            elif security_code_char_market == '.SZ':
+                security_code_char_market = '.SZ'
+            # 如果市场字符等于'.XSHG'则将市场字符替换成'.SH'
+            elif securities_code_char_market == '.XSHG':
+                securities_code_char_market = '.SH'
+            # 如果市场字符等于'.XSHE'则将市场字符替换成'.SZ'
+            elif securities_code_char_market == '.XSHE':
+                securities_code_char_market = '.SZ'
+            # 将六位数字字符和点和市场字符重新拼接成新的证券代码
+            security_code = security_code_char_number + security_code_char_market
+
+        elif trade_mode == 'qmt':
+            # 获取证券代码.之前的字符串,即六位数字字符
+            security_code_char_number = security_code[0:security_code.rfind('.')]
+            # 获取证券代码.开始的字符串，即点和市场字符
+            security_code_char_market = security_code[security_code.rfind('.'):]
+            # 如果市场字符等于'.SH'则将市场字符替换成'.SH'
+            if security_code_char_market == '.SH':
+                security_code_char_market = '.SH'
+            # 如果市场字符等于'.SZ'则将市场字符替换成'.SZ'
+            elif security_code_char_market == '.SZ':
+                security_code_char_market = '.SZ'
+            # 如果市场字符等于'.SH'则将市场字符替换成'.SH'
+            elif security_code_char_market == '.SH':
+                security_code_char_market = '.SH'
+            # 如果市场字符等于'.SZ'则将市场字符替换成'.SZ'
+            elif security_code_char_market == '.SZ':
+                security_code_char_market = '.SZ'
+            # 将六位数字字符和点和市场字符重新拼接成新的证券代码
+            security_code = security_code_char_number + security_code_char_market
+    except Exception as e:
+        print('证券代码转换未知异常：', e)
+
+    return security_code
+
 # 交易策略函数
 def jingni_trade_strategy(trade_mode, context_data):
-    print('当前的账户资产：', jingni_portfolio(trade_mode, context_data, 'assets_value'), '元')
-    print('当前的账户市值：', jingni_portfolio(trade_mode, context_data, 'market_value'), '元')
-    print('当前的可用资金：', jingni_portfolio(trade_mode, context_data, 'cash'), '元')
-    print('当前的持仓信息：', jingni_portfolio(trade_mode, context_data, 'positions'))
+    print('通用证券代码：000001.SH', '转换成',trade_mode, '的专用证券代码：', jingni_map_security_code('000300.SH'))
+    print('通用证券代码：399001.SZ', '转换成',trade_mode, '的专用证券代码：', jingni_map_security_code('399001.SZ'))
+    print(trade_mode, '的专用证券代码：', jingni_map_security_code('600519.SH'),'转换成', '通用证券代码：', jingni_map_security_code(jingni_map_security_code('600519.SH')))
+    print(trade_mode, '的专用证券代码：', jingni_map_security_code('300750.SZ'),'转换成', '通用证券代码：', jingni_map_security_code(jingni_map_security_code('300750.SZ')))
 
 # 盘前事件函数
 def jingni_before_trading_start(trade_mode, context_data):
