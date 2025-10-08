@@ -2,7 +2,7 @@
 
 """
 项目名称：JingNiTrader
-项目版本：v0.1.7
+项目版本：v0.1.8
 项目描述：JingNiTrader是一个基于Python的量化交易开发框架，致力于提供兼容中国券商交易软件的量化解决方案。
 项目版权：Copyright (c) 2024-present, Hanjun Du
 项目作者：Hnjun Du (hanjun.du@outlook.com)
@@ -240,9 +240,127 @@ def jingni_get_history(trade_mode, context_data, security_code, security_frequen
 
     return history_data
 
+# 提取单日证券行情数据
+def jingni_get_field(trade_mode, context_data, security_code, security_frequency, security_field, security_count):
+
+    security_field_data = None
+
+    if trade_mode == 'goldminer':
+        if security_count == 0:
+            # 判断策略运行模式（返回1为实时模式，返回2为回测模式）
+            if context_data.mode == 1:
+                # 实时行情数据字段映射
+                if security_field == 'open':
+                    security_field = 'open'
+                elif security_field == 'high':
+                    security_field = 'high'
+                elif security_field == 'low':
+                    security_field = 'low'
+                elif security_field == 'close':
+                    security_field = 'price'
+                # 获取实时行情数据，0代表实盘当天
+                security_field_data = jingni_get_current(trade_mode, context_data, security_code, security_field)
+                # 判断行情数据是否不为空
+                if security_field_data is not None and len(security_field_data) > 0:
+                    # 提取字段数值
+                    security_field = security_field_data[0][security_field]
+            elif context_data.mode == 2:
+                # 获取历史行情数据，0代表回测当天
+                security_field_data = jingni_get_history(trade_mode, context_data, security_code, security_frequency, security_field, security_count-1)
+                # 判断行情数据是否不为空
+                if security_field_data is not None and not security_field_data.empty and security_field_data.shape[0] > 0:
+                    # 提取字段数值
+                    security_field = security_field_data.iloc[security_count - 1][security_field]
+        elif security_count < 0:
+            # 获取历史行情数据，小于0代表实盘或回测当天的前n个交易日
+            security_field_data = jingni_get_history(
+                trade_mode, context_data, security_code, security_frequency, security_field, security_count)
+            # 判断行情数据是否不为空
+            if security_field_data is not None and not security_field_data.empty and security_field_data.shape[0] > 0:
+                # 提取字段数值
+                security_field = security_field_data.iloc[security_count][security_field]
+    elif trade_mode == 'ptrade':
+        if security_count == 0:
+            # 判断策略运行模式（返回True为实时模式，返回False为回测模式）
+            if is_trade():
+                # 实时行情数据字段映射
+                if security_field == 'open':
+                    security_field = 'open_px'
+                elif security_field == 'high':
+                    security_field = 'high_px'
+                elif security_field == 'low':
+                    security_field = 'low_px'
+                elif security_field == 'close':
+                    security_field = 'last_px'
+                # 获取实时行情数据，0代表实盘当天
+                security_field_data = jingni_get_current(trade_mode, context_data, security_code, security_field)
+                # 判断行情数据是否不为空
+                if security_field_data is not None and len(security_field_data) > 0:
+                    # 提取字段数值
+                    security_field = security_field_data[security_code][security_field]
+            else:
+                # 获取历史行情数据，0代表回测当天
+                security_field_data = jingni_get_history(trade_mode, context_data, security_code, security_frequency, security_field, security_count-1)
+                # 判断行情数据是否不为空
+                if security_field_data is not None and not security_field_data.empty and security_field_data.shape[0] > 0:
+                    # 提取字段数值
+                    security_field = security_field_data[security_field][security_count-1]
+        elif security_count < 0:
+            # 获取历史行情数据，小于0代表实盘或回测当天的前n个交易日
+            security_field_data = jingni_get_history(trade_mode, context_data, security_code, security_frequency, security_field, security_count)
+            # 判断行情数据是否不为空
+            if security_field_data is not None and not security_field_data.empty and security_field_data.shape[0] > 0:
+                # 提取字段数值
+                security_field = security_field_data[security_field][security_count]
+    elif trade_mode == 'qmt':
+        # 将字符串参数转换成列表参数
+        if isinstance(security_code, str):
+            security_code = [security_code]
+        if isinstance(security_field, str):
+            security_field = [security_field]
+        if security_count == 0:
+            # 判断策略运行模式（返回False为实时模式）
+            if not context_data.do_back_test:
+                # 实时行情数据字段映射
+                if security_field[0] == 'open':
+                    security_field = ['open']
+                elif security_field[0] == 'high':
+                    security_field = ['high']
+                elif security_field[0] == 'low':
+                    security_field = ['low']
+                elif security_field[0] == 'close':
+                    security_field = ['lastPrice']
+                # 获取实时行情数据，0代表实盘当天
+                security_field_data = jingni_get_current(trade_mode, context_data, security_code, security_field)
+                # 判断行情数据是否补为空
+                if security_field_data is not None and len(security_field_data) > 0:
+                    # 提取字段数值
+                    security_field = security_field_data[security_code[0]][security_field[0]]
+            else:
+                # 获取历史行情数据，0代表回测当天
+                security_field_data = jingni_get_history(trade_mode, context_data, security_code, security_frequency, security_field, security_count-1)
+                # 判断行情数据是否不为空
+                if security_field_data is not None and len(security_field_data) > 0:
+                    # 提取字段数值
+                    security_field = security_field_data[security_code[0]][security_field[0]][security_count-1]
+        elif security_count < 0:
+            # 获取历史行情数据，小于0代表实盘或回测当天的前n个交易日
+            security_field_data = jingni_get_history(trade_mode, context_data, security_code, security_frequency, security_field, security_count-1)
+            # 判断行情数据是否不为空
+            if security_field_data is not None and len(security_field_data) > 0:
+                # 提取字段数值
+                security_field = security_field_data[security_code[0]][security_field[0]][security_count-1]
+
+    # 判断行情数据是否为空
+    if security_field_data is None and security_field_data.shape[0] == 0:
+        # 设定字段数值的缺省值
+        security_field = 0
+
+    return security_field
+
 # 交易策略函数
 def jingni_trade_strategy(trade_mode, context_data):
-    print('000300.SH历史行情：', jingni_get_history(trade_mode, context_data, jingni_map_security_code('000300.SH'), '1d', '', -10))
+    print('000300.SH今日收盘价：', jingni_get_field(trade_mode, context_data, jingni_map_security_code('000300.SH'), '1d', 'close', 0))
 
 # 盘前事件函数
 def jingni_before_trading_start(trade_mode, context_data):
