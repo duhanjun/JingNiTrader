@@ -2,7 +2,7 @@
 
 """
 项目名称：JingNiTrader
-项目版本：v0.1.5
+项目版本：v0.1.6
 项目描述：JingNiTrader是一个基于Python的量化交易开发框架，致力于提供兼容中国券商交易软件的量化解决方案。
 项目版权：Copyright (c) 2024-present, Hanjun Du
 项目作者：Hnjun Du (hanjun.du@outlook.com)
@@ -189,12 +189,34 @@ def jingni_map_security_code(security_code):
 
     return security_code
 
+# 查询实时行情函数
+def jingni_get_current(trade_mode, context_data, security_code, security_field):
+
+    try:
+        if trade_mode == 'goldminer':
+            # 获取实时行情数据
+            current_data = current(symbols=security_code, fields=security_field)
+        elif trade_mode == 'ptrade':
+            # 获取实时行情数据
+            current_data = get_snapshot(security_code)
+        elif trade_mode == 'qmt':
+            # 将字符串参数转换成列表参数
+            if isinstance(security_code, str):
+                security_code = [security_code]
+            # 获取实时行情数据
+            current_data = context_data.get_full_tick(security_code)
+    except Exception as e:
+        print('查询实时行情未知异常：', e)
+        current_data = None
+
+    return current_data
+
 # 交易策略函数
 def jingni_trade_strategy(trade_mode, context_data):
-    print('通用证券代码：000001.SH', '转换成',trade_mode, '的专用证券代码：', jingni_map_security_code('000300.SH'))
-    print('通用证券代码：399001.SZ', '转换成',trade_mode, '的专用证券代码：', jingni_map_security_code('399001.SZ'))
-    print(trade_mode, '的专用证券代码：', jingni_map_security_code('600519.SH'),'转换成', '通用证券代码：', jingni_map_security_code(jingni_map_security_code('600519.SH')))
-    print(trade_mode, '的专用证券代码：', jingni_map_security_code('300750.SZ'),'转换成', '通用证券代码：', jingni_map_security_code(jingni_map_security_code('300750.SZ')))
+    print('000300.SH实时行情：', jingni_get_current(trade_mode, context_data, jingni_map_security_code('000300.SH'), ''))
+    print('399001.SZ实时行情：', jingni_get_current(trade_mode, context_data, jingni_map_security_code('399001.SZ'), ''))
+    print('600519.SH实时行情：', jingni_get_current(trade_mode, context_data, jingni_map_security_code('600519.SH'), ''))
+    print('300750.SZ实时行情：', jingni_get_current(trade_mode, context_data, jingni_map_security_code('300750.SZ'), ''))
 
 # 盘前事件函数
 def jingni_before_trading_start(trade_mode, context_data):
