@@ -553,7 +553,7 @@ def jingni_order_value(trade_mode, context_data, security_code, security_value, 
         print('证券价值交易未知异常：', e)
 
 # 新股申购函数
-def jingni_subscribe_new_stock(trade_mode):
+def jingni_subscribe_new_stock(context_data):
 
     print(datetime.datetime.now(), '开始新股申购')
 
@@ -570,10 +570,13 @@ def jingni_subscribe_new_stock(trade_mode):
             print('今日没有新股')
 
     elif trade_mode == 'ptrade':
-        # 提交新股申购订单
+        # 提交上证普通新股申购订单
         ipo_stock_order_SH = ipo_stocks_order(market_type=0)
+        # 提交上证科创板新股申购订单
         ipo_stock_order_KC = ipo_stocks_order(market_type=1)
+        # 提交深圳普通新股申购订单
         ipo_stock_order_SZ = ipo_stocks_order(market_type=2)
+        # 提交深圳创业板新股申购订单
         ipo_stock_order_CY = ipo_stocks_order(market_type=3)
         if ipo_stock_order_SH or ipo_stock_order_KC or ipo_stock_order_SZ or ipo_stock_order_CY:
             print('完成新股申购：%s %s %s %s' % (ipo_stock_order_SH,ipo_stock_order_KC, ipo_stock_order_SZ, ipo_stock_order_CY))
@@ -598,7 +601,7 @@ def jingni_subscribe_new_stock(trade_mode):
     print(datetime.datetime.now(), '结束新股申购')
 
 # 新债申购函数
-def jingni_subscribe_new_bond(trade_mode):
+def jingni_subscribe_new_bond(context_data):
 
     print(datetime.datetime.now(), '开始新债申购')
 
@@ -608,14 +611,14 @@ def jingni_subscribe_new_bond(trade_mode):
         print('今日新债信息：%s' % ipo_bond)
         if ipo_bond:
             for security in ipo_bond:
-                # 提交新债申购订单
+                # 提交可转债新债申购订单
                 ipo_bond_order = ipo_buy(security['symbol'], security['max_vol'], security['price'], account_id='')
                 print('完成新债申购：%s' % ipo_bond_order)
         else:
             print('今日没有新债')
 
     elif trade_mode == 'ptrade':
-        # 提交新债申购订单
+        # 提交可转债新债申购订单
         ipo_bond_order = ipo_stocks_order(market_type=4)
         if ipo_bond_order:
             print('完成新债申购：%s' % ipo_bond_order)
@@ -641,17 +644,23 @@ def jingni_subscribe_new_bond(trade_mode):
     print(datetime.datetime.now(), '结束新债申购')
 
 # 国债逆回购函数
-def jingni_participate_reverse_repo(trade_mode, context_data, security_code, cash_ratio):
+def jingni_participate_reverse_repo(context_data):
 
     print(datetime.datetime.now(), '开始国债逆回购')
 
+    # 逆回购证券代码
+    security_code = jingni_map_security_code('204001.SH')
+    # 逆回购资金比例
+    cash_ratio = 1.00
     # 获取账户可用资金
     cash = jingni_portfolio(trade_mode, context_data, 'cash')
     # 计算证券可卖数量
     security_amount = -(int(cash*cash_ratio/1000))*10
     # 如果证券可卖数量小于0，则卖出证券完成国债逆回购
     if security_amount < 0:
-        security_price = jingni_get_current(trade_mode, context_data, security_code, 'price')
+        # 获前国债逆回购价格
+        security_price = jingni_get_field(trade_mode, context_data, security_code, '1d', 'close', 0)
+        # 提交国债逆回购订单
         jingni_order_amount(trade_mode, context_data,security_code, security_amount, security_price)
     # 如果证券可卖数量等于0，则自动跳过结束国债逆回购
     else:
