@@ -2,7 +2,7 @@
 
 """
 项目名称：JingNiTrader
-项目版本：v0.1.14
+项目版本：v0.1.15
 项目描述：JingNiTrader是一个基于Python的量化交易开发框架，致力于提供兼容中国券商交易软件的量化解决方案。
 项目版权：Copyright (c) 2024-present, Hanjun Du
 项目作者：Hnjun Du (hanjun.du@outlook.com)
