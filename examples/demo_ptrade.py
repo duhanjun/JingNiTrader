@@ -1,8 +1,5 @@
 # encoding: utf-8
 
-import time
-import datetime
-
 
 def initialize(context):
     # 设定每天10:00执行新股申购函数(关闭该功能请在下一行代码run_daily前加#)

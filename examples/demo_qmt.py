@@ -1,8 +1,5 @@
 # encoding: gbk
 
-import time
-import datetime
-
 
 def init(ContextInfo):
     # 设定每天10:00执行新股申购函数(关闭该功能请在下一行代码ContextInfo.schedule_run前加#)
