@@ -5,8 +5,8 @@ from gm.api import *
 
 # 策略中必须有init方法
 def init(context):
-    # 新建空策略后复制这一行示例代码到空策略里
-    subscribe(symbols='SHSE.600000', frequency='1d')
+    # 新建空策略后复制这一行示例代码到空策略里（频率支持tick, 60s, 300s, 900s, 1800s, 3600s, 1d）
+    subscribe(symbols='SHSE.600000', frequency='1d') 
     # 设定每天10:00执行新股申购函数(关闭该功能请在下一行代码schedule前加#)
     schedule(schedule_func=jingni_subscribe_new_stock, date_rule='1d', time_rule='10:00:00')
     # 设定每天10:10执行新债申购函数(关闭该功能请在下一行代码schedule前加#)
@@ -16,9 +16,16 @@ def init(context):
     pass
 
 # 新建空策略后复制这两行示例代码到空策略里
+def on_tick(context,tick):
+    # 新建空策略后复制这一行示例代码到空策略里
+    jingni_trade_strategy(trade_mode, context)
+    pass
+
+# 新建空策略后复制这两行示例代码到空策略里
 def on_bar(context, bars):
     # 新建空策略后复制这一行示例代码到空策略里
     jingni_trade_strategy(trade_mode, context)
+    pass
 
 # 新建空策略后复制strategy_id和token的值分别替换示例代码里10个x和10个y
 if __name__ == '__main__':
