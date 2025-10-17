@@ -722,7 +722,7 @@ def jingni_main(trade_mode, context_data):
             # 运行盘前交易事件函数
             jingni_before_trading_start(trade_mode, context_data)
             # 定义交易开始时间为09:30:00
-            trade_start_time = datetime.time(8, 30, 0)
+            trade_start_time = datetime.time(9, 30, 0)
             # 定义交易结束时间为15:00:00
             trade_end_time = datetime.time(15, 00, 0)
             # 定义程序交易时间间隔为3秒
