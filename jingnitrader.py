@@ -2,7 +2,7 @@
 
 """
 项目名称：JingNiTrader
-项目版本：v0.1.15
+项目版本：v0.1.16
 项目描述：JingNiTrader是一个基于Python的量化交易开发框架，致力于提供兼容中国券商交易软件的量化解决方案。
 项目版权：Copyright (c) 2024-present, Hanjun Du
 项目作者：Hnjun Du (hanjun.du@outlook.com)
@@ -20,7 +20,7 @@ import datetime
 global trade_mode
 trade_mode = '软件名称'
 
-# 查询交易日历函数
+# 查询交易日期函数
 def jingni_trading_dates(trade_mode, context_data, trading_dates_count):
     try:
         if trade_mode == 'goldminer':
@@ -54,9 +54,26 @@ def jingni_trading_dates(trade_mode, context_data, trading_dates_count):
                 # 获取交易日历，小于0代表今天的前n个交易日
                 trading_dates_data = None
     except Exception as e:
-        print('查询交易日历未知异常：', e)
+        print('查询交易日期未知异常：', e)
         trading_dates_data = None
     return trading_dates_data
+
+# 查询交易时间函数
+def jingni_trading_times(trade_mode, context_data):
+    try:
+        if trade_mode == 'goldminer':
+            # 获取当前交易时间（实时模式返回当前本地时间, 回测模式返回当前回测时间）
+            trading_times_data = context_data.now.time()
+        elif trade_mode == 'ptrade':
+            # 获取当前交易时间（实时模式返回当前本地时间, 回测模式返回当前回测时间）
+            trading_times_data = context_data.blotter.current_dt.time()
+        elif trade_mode == 'qmt':
+            # 获取当前交易时间（实时模式返回当前本地时间, 回测模式返回当前回测时间）
+            trading_times_data = datetime.datetime.fromtimestamp(context_data.get_bar_timetag(context_data.barpos)/1000).time()
+    except Exception as e:
+        print('查询交易时间未知异常：', e)
+        trading_times_data = None
+    return trading_times_data
 
 # 查询账户信息函数
 def jingni_portfolio(trade_mode, context_data, security_field):
